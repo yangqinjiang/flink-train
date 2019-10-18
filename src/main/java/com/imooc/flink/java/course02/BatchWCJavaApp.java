@@ -31,14 +31,14 @@ public class BatchWCJavaApp {
             public void flatMap(String value, Collector<Tuple2<String, Integer>> collector) throws Exception {
                 String[] tokens = value.toLowerCase().split("\\t");
                 for (String token: tokens) {
-                    if (token.length() > 0){
+                    if (token.length() > 0){//不是空字符串
                         collector.collect(new Tuple2<>(token,1));
                     }
                 }
             }
-        }).groupBy(0)//按单词分组
-                .sum(1)//统计相同单词的总数
-                .print();
+        }).groupBy(0)//按单词分组,0 是指 (word,1)的word
+                .sum(1)//统计相同单词的总数,1 是指 (word,1)的1
+                .print();//在控制台打印
         /** output:
          * (weclome,2)
          * (world,2)
