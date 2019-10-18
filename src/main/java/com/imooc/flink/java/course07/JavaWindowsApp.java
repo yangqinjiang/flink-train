@@ -1,4 +1,4 @@
-package com.imooc.flink.course07;
+package com.imooc.flink.java.course07;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
