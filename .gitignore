@@ -1,3 +1,6 @@
 .idea
 comimooc.iml
 target
+.project
+.settings
+.vscode
