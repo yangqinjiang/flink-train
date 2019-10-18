@@ -2,10 +2,13 @@ package com.imooc.flink.java.course02;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
+
+import java.lang.reflect.Parameter;
 
 /**
  * 使用Java API来开发Flink的实时处理程序
@@ -14,10 +17,19 @@ import org.apache.flink.util.Collector;
  */
 public class StreamingWCJavaApp {
     public static void main(String[] args) throws Exception {
+        //传入参数
+        int port = 0;
+        try {
+            ParameterTool tool = ParameterTool.fromArgs(args);
+            port = tool.getInt("port");
+        }catch (Exception e){
+            System.err.println("端口未设置，使用默认端口9999");
+            port = 9999;
+        }
         //1,获取执行环境
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         //2，获取数据
-        DataStreamSource<String> text =  env.socketTextStream("localhost",9999);
+        DataStreamSource<String> text =  env.socketTextStream("localhost",port);
         //3,transform调用算子
         //以下是, 读取每一行，按,分隔，返回(word,1)
         text.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
