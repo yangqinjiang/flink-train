@@ -12,6 +12,10 @@ import org.apache.flink.util.Collector;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 参考文档
+ * https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/dataset_transformations.html#join
+ */
 public class JavaDataSetTransformationApp {
 
     public static void main(String[] args) throws Exception{

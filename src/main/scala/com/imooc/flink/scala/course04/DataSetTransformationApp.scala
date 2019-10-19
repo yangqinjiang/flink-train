@@ -5,6 +5,10 @@ import org.apache.flink.api.scala.ExecutionEnvironment
 
 import scala.collection.mutable.ListBuffer
 
+/**
+ * 参考文档
+ * https://ci.apache.org/projects/flink/flink-docs-release-1.7/dev/batch/dataset_transformations.html#join
+ */
 object DataSetTransformationApp {
 
 
@@ -65,13 +69,7 @@ object DataSetTransformationApp {
     data1.fullOuterJoin(data2)
       .where(0).equalTo(0)  // 类似sql语句的 ON data1.id = data2.id
       .apply((first,second)=>{
-        if(first == null) {
-          (second._1,"-",second._2)
-        } else if (second == null) {
-          (first._1,first._2,"-")
-        }else{
-          (first._1,first._2,second._2)
-        }
+        if(first == null) (second._1,"-",second._2) else if (second == null) (first._1,first._2,"-") else (first._1,first._2,second._2)
       }).print()
 
     /** output:
