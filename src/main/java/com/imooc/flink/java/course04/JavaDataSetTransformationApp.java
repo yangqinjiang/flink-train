@@ -4,7 +4,10 @@ import com.imooc.flink.scala.course04.DBUtils;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.MapPartitionFunction;
+import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.operators.DataSource;
+import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
 
 import java.util.ArrayList;
@@ -16,8 +19,50 @@ public class JavaDataSetTransformationApp {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 //        mapFunction(env);
 //        filterFunction(env);
-        mapPartitionFunction(env);
+//        mapPartitionFunction(env);
+        firstFunction(env);
     }
+    //first
+    private static void firstFunction(ExecutionEnvironment env) throws Exception{
+        List<Tuple2<Integer,String>> info = new ArrayList<>();
+        info.add(new Tuple2<>(1,"Hadoop"));
+        info.add(new Tuple2<>(1,"Spark"));
+        info.add(new Tuple2<>(1,"Flink"));
+        info.add(new Tuple2<>(2,"Java"));
+        info.add(new Tuple2<>(2,"Spring Boot"));
+        info.add(new Tuple2<>(3,"Linux"));
+        info.add(new Tuple2<>(4,"VUE.js"));
+
+        DataSource<Tuple2<Integer,String>> data =  env.fromCollection(info);
+        data.first(3).print();
+        /** output:
+         * (1,Hadoop)
+         * (1,Spart)
+         * (1,Flink)
+         */
+        data.groupBy(0).first(2).print();
+        /** output:
+         * (3,Linux)
+         * (1,Hadoop)
+         * (1,Spart)
+         * (2,Java)
+         * (2,String Boot)
+         * (4,Vue.js)
+         */
+        data.groupBy(0)
+                .sortGroup(1, Order.DESCENDING)//按字母降序
+                .first(2).print();
+
+        /** output:
+         * (3,Linux)
+         * (1,Spart)
+         * (1,Hadoop)
+         * (2,String Boot)
+         * (2,Java)
+         * (4,Vue.js)
+         */
+    }
+
     //mapPartition
     private static void mapPartitionFunction(ExecutionEnvironment env) throws Exception {
         List<String> list = new ArrayList<String>();
