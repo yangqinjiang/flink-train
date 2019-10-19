@@ -1,14 +1,12 @@
 package com.imooc.flink.java.course04;
 
 import com.imooc.flink.scala.course04.DBUtils;
-import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.MapPartitionFunction;
+import org.apache.flink.api.common.functions.*;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.util.Collector;
 
 import java.util.ArrayList;
@@ -23,7 +21,183 @@ public class JavaDataSetTransformationApp {
 //        mapPartitionFunction(env);
 //        firstFunction(env);
 //        flatMapFunction(env);
-        distinctFunction(env);
+//        distinctFunction(env);
+//        joinFunction(env);
+//        leftOuterJoinFunction(env);
+//        rightOuterJoinFunction(env);
+//        fullOuterJoinFunction(env);
+        crossFunction(env);
+    }
+    public static void  crossFunction(ExecutionEnvironment env) throws Exception{
+        List<String> info1 = new ArrayList<>();
+        info1.add("曼联");
+        info1.add("曼城");
+
+        List<Integer> info2 = new ArrayList<>();
+        info2.add(3);
+        info2.add(1);
+        info2.add(0);
+
+        DataSource<String> data1 = env.fromCollection(info1);
+        DataSource<Integer> data2 = env.fromCollection(info2);
+        data1.cross(data2).print();
+        /** output:
+         * (曼联,3)
+         * (曼联,1)
+         * (曼联,0)
+         * (曼城,3)
+         * (曼城,1)
+         * (曼城,0)
+         */
+    }
+    //fullOuterJoin 全匹配,右表 ,左表可能有null值
+    private static void fullOuterJoinFunction(ExecutionEnvironment env) throws Exception{
+        List<Tuple2<Integer,String>> info1 = new ArrayList<>();
+        info1.add(new Tuple2<>(1,"PK哥"));
+        info1.add(new Tuple2<>(2,"J哥"));
+        info1.add(new Tuple2<>(3,"小队长"));
+        info1.add(new Tuple2<>(4,"猪头呼"));
+
+        List<Tuple2<Integer,String>> info2 = new ArrayList<>();
+        info2.add(new Tuple2<>(1,"北京"));
+        info2.add(new Tuple2<>(2,"上海"));
+        info2.add(new Tuple2<>(3,"成都"));
+        info2.add(new Tuple2<>(5,"杭州"));
+        DataSource<Tuple2<Integer,String>> data1 = env.fromCollection(info1);
+        DataSource<Tuple2<Integer,String>> data2 = env.fromCollection(info2);
+
+        data1.fullOuterJoin(data2)
+                .where(0)//关联
+                .equalTo(0)//关联
+                //返回tuple3
+                .with(new JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Tuple3<Integer, String,String>>() {
+                    @Override
+                    public Tuple3<Integer, String, String> join(Tuple2<Integer, String> first, Tuple2<Integer, String> second) throws Exception {
+                        if (first == null){
+                            return new Tuple3<>(second.f0,"-",second.f1);
+                        }else if(second == null){
+                            return new Tuple3<>(first.f0,first.f1,"-");
+                        }else{
+                            return new Tuple3<>(first.f0,first.f1,second.f1);
+                        }
+
+                    }
+                }).print();
+        /** output:
+         *(3,小队长,成都)
+         * (1,PK哥,北京)
+         * (5,-,杭州)
+         * (2,J哥,上海)
+         * (4,猪头呼,-)
+         */
+    }
+    //rightOuterJoin 右匹配,以右表为基准,左表可能有null值
+    private static void rightOuterJoinFunction(ExecutionEnvironment env) throws Exception{
+        List<Tuple2<Integer,String>> info1 = new ArrayList<>();
+        info1.add(new Tuple2<>(1,"PK哥"));
+        info1.add(new Tuple2<>(2,"J哥"));
+        info1.add(new Tuple2<>(3,"小队长"));
+        info1.add(new Tuple2<>(4,"猪头呼"));
+
+        List<Tuple2<Integer,String>> info2 = new ArrayList<>();
+        info2.add(new Tuple2<>(1,"北京"));
+        info2.add(new Tuple2<>(2,"上海"));
+        info2.add(new Tuple2<>(3,"成都"));
+        info2.add(new Tuple2<>(5,"杭州"));
+        DataSource<Tuple2<Integer,String>> data1 = env.fromCollection(info1);
+        DataSource<Tuple2<Integer,String>> data2 = env.fromCollection(info2);
+
+        data1.rightOuterJoin(data2)
+                .where(0)//关联
+                .equalTo(0)//关联
+                //返回tuple3
+                .with(new JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Tuple3<Integer, String,String>>() {
+                    @Override
+                    public Tuple3<Integer, String, String> join(Tuple2<Integer, String> first, Tuple2<Integer, String> second) throws Exception {
+                        if (first != null){
+                            return new Tuple3<>(first.f0,first.f1,second.f1);
+                        }else{
+                            return new Tuple3<>(second.f0,"-",second.f1);
+                        }
+
+                    }
+                }).print();
+        /** output:
+         *(3,小队长,成都)
+         * (1,PK哥,北京)
+         * (5,-,杭州)
+         * (2,J哥,上海)
+         */
+    }
+    //leftOuterJoin 左匹配,以左表为基准,右表可能有null值
+    private static void leftOuterJoinFunction(ExecutionEnvironment env) throws Exception{
+        List<Tuple2<Integer,String>> info1 = new ArrayList<>();
+        info1.add(new Tuple2<>(1,"PK哥"));
+        info1.add(new Tuple2<>(2,"J哥"));
+        info1.add(new Tuple2<>(3,"小队长"));
+        info1.add(new Tuple2<>(4,"猪头呼"));
+
+        List<Tuple2<Integer,String>> info2 = new ArrayList<>();
+        info2.add(new Tuple2<>(1,"北京"));
+        info2.add(new Tuple2<>(2,"上海"));
+        info2.add(new Tuple2<>(3,"成都"));
+        info2.add(new Tuple2<>(5,"杭州"));
+        DataSource<Tuple2<Integer,String>> data1 = env.fromCollection(info1);
+        DataSource<Tuple2<Integer,String>> data2 = env.fromCollection(info2);
+
+        data1.leftOuterJoin(data2)
+                .where(0)//关联
+                .equalTo(0)//关联
+                //返回tuple3
+                .with(new JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Tuple3<Integer, String,String>>() {
+                    @Override
+                    public Tuple3<Integer, String, String> join(Tuple2<Integer, String> first, Tuple2<Integer, String> second) throws Exception {
+                        if (second != null){
+                            return new Tuple3<>(first.f0,first.f1,second.f1);
+                        }else{
+                            return new Tuple3<>(first.f0,first.f1,"-");
+                        }
+
+                    }
+                }).print();
+        /** output:
+         *(3,小队长,成都)
+         * (1,PK哥,北京)
+         * (2,J哥,上海)
+         * (4,猪头呼,-)
+         */
+    }
+    //join 全匹配
+    private static void joinFunction(ExecutionEnvironment env) throws Exception{
+        List<Tuple2<Integer,String>> info1 = new ArrayList<>();
+        info1.add(new Tuple2<>(1,"PK哥"));
+        info1.add(new Tuple2<>(2,"J哥"));
+        info1.add(new Tuple2<>(3,"小队长"));
+        info1.add(new Tuple2<>(4,"猪头呼"));
+
+        List<Tuple2<Integer,String>> info2 = new ArrayList<>();
+        info2.add(new Tuple2<>(1,"北京"));
+        info2.add(new Tuple2<>(2,"上海"));
+        info2.add(new Tuple2<>(3,"成都"));
+        info2.add(new Tuple2<>(5,"杭州"));
+        DataSource<Tuple2<Integer,String>> data1 = env.fromCollection(info1);
+        DataSource<Tuple2<Integer,String>> data2 = env.fromCollection(info2);
+
+        data1.join(data2)
+                .where(0)//关联
+                .equalTo(0)//关联
+                //返回tuple3
+                .with(new JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Tuple3<Integer, String,String>>() {
+            @Override
+            public Tuple3<Integer, String, String> join(Tuple2<Integer, String> first, Tuple2<Integer, String> second) throws Exception {
+                return new Tuple3<>(first.f0,first.f1,second.f1);
+            }
+        }).print();
+        /** output:
+         *(3,小队长,成都)
+         * (1,PK哥,北京)
+         * (2,J哥,上海)
+         */
     }
     //distinctFunction,去重
     private static void distinctFunction(ExecutionEnvironment env) throws Exception{
