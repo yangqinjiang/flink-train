@@ -15,7 +15,7 @@ object BatchWCScalaApp {
      * hi	world	hello
      * weclome	keke
      */
-    val filePath = "e:\\flink\\hello.txt";
+    val filePath = "c:\\flink\\hello.txt";
     //1,获取运行环境
     val env = ExecutionEnvironment.getExecutionEnvironment
     //2,读取数据

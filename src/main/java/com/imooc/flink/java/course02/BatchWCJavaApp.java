@@ -18,7 +18,7 @@ public class BatchWCJavaApp {
          * hi	world	hello
          * weclome	keke
          */
-        String filePath = "e:\\flink\\hello.txt";
+        String filePath = "c:\\flink\\hello.txt";
         //1,获取运行环境
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         //2,读取数据
