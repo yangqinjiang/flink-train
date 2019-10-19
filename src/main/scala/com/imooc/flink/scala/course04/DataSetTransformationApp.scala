@@ -13,9 +13,37 @@ object DataSetTransformationApp {
     //mapFunction(env)
     //filterFunction(env)
 //    mapPartitionFunction(env)
-    firstFunction(env)
-
+//    firstFunction(env)
+    flatMapFunction(env)
   }
+  //flatMap
+  def flatMapFunction(env: ExecutionEnvironment):Unit = {
+    val info = ListBuffer[String]()
+    info.append("hadoop,spark")
+    info.append("hadoop,flink")
+    info.append("flink,flink")
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data = env.fromCollection(info)
+    data.print()
+    //map满足不了与split的结合用法
+    data.map(_.split(",")).print() //output: [Ljava.lang.String;@3a5237
+    data.flatMap(_.split(",")).print() //output: hadoop \n spark \n .....
+    //经典用法
+    data
+      .flatMap(_.split(","))
+      .map((_,1))
+      .groupBy(0)
+      .sum(1)
+      .print()
+
+    /**
+     * (hadoop,2)
+     * (flink,3)
+     * (spark,1)
+     */
+  }
+  //first
   def firstFunction(env: ExecutionEnvironment):Unit = {
     //隐式转换
     import org.apache.flink.api.scala._

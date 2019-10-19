@@ -2,6 +2,7 @@ package com.imooc.flink.java.course04;
 
 import com.imooc.flink.scala.course04.DBUtils;
 import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.MapPartitionFunction;
 import org.apache.flink.api.common.operators.Order;
@@ -20,7 +21,36 @@ public class JavaDataSetTransformationApp {
 //        mapFunction(env);
 //        filterFunction(env);
 //        mapPartitionFunction(env);
-        firstFunction(env);
+//        firstFunction(env);
+        flatMapFunction(env);
+    }
+    //flatMapFunction,统计单词数量
+    private static void flatMapFunction(ExecutionEnvironment env) throws Exception{
+        List<String> info = new ArrayList<>();
+        info.add("hadoop,spark");
+        info.add("hadoop,flink");
+        info.add("flink,flink");
+        DataSource<String> data =  env.fromCollection(info);
+        data.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public void flatMap(String value, Collector<String> out) throws Exception {
+                String[] tokens = value.split(",");
+                for (String token : tokens){
+                    out.collect(token);
+                }
+            }
+        }).map(new MapFunction<String, Tuple2<String,Integer>>() {//注意输出与输出的数据类型
+            @Override
+            public Tuple2<String, Integer> map(String value) throws Exception {
+                return new Tuple2<>(value,1);
+            }
+        }).groupBy(0).sum(1).print();
+        /** output:
+         * (hadoop,2)
+         * (flink,3)
+         * (spark,1)
+         */
+
     }
     //first
     private static void firstFunction(ExecutionEnvironment env) throws Exception{
