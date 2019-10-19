@@ -10,6 +10,8 @@ import org.apache.flink.api.scala._
  * 数据源
  */
 object DataSetDataSourceApp {
+
+
   def main(args: Array[String]): Unit = {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
@@ -17,8 +19,15 @@ object DataSetDataSourceApp {
 //    readTextFile(env)
 //    readTextDir(env)
 //    csvFile(env)
-    readRecursiveFiles(env)
+//    readRecursiveFiles(env)
+     readCompressionFiles(env)
   }
+  //读取压缩文件
+  def readCompressionFiles(env: ExecutionEnvironment): Unit = {
+    val filePath = "c:\\flink\\compression"
+    env.readTextFile(filePath).print()
+  }
+
   // 从递归文件夹的内容创建dataset之scala实现
   def readRecursiveFiles(env: ExecutionEnvironment): Unit={
     val filePath = "c:\\flink\\nested"

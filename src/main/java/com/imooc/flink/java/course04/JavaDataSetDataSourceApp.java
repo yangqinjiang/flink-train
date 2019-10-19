@@ -16,11 +16,18 @@ public class JavaDataSetDataSourceApp {
         //readTextFile(env);
         //readTextDir(env);
 //        csvFile(env);
-        readRecursiveFiles(env);
+        //readRecursiveFiles(env);
+        readCompressionFiles(env);
+    }
+    //读取压缩文件
+    private static void readCompressionFiles(ExecutionEnvironment env) throws Exception{
+        String filePath = "c:\\flink\\compression";
+        env.readTextFile(filePath).print();
     }
     // 从递归文件夹的内容创建dataset之java实现
     private static void readRecursiveFiles(ExecutionEnvironment env) throws Exception {
         String filePath = "c:\\flink\\nested";
+        //配置 递归文件夹
         Configuration conf  = new Configuration();
         conf.setBoolean("recursive.file.enumeration",true);
         env.readTextFile(filePath).withParameters(conf).print();
