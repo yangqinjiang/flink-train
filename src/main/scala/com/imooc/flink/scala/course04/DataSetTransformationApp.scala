@@ -14,7 +14,25 @@ object DataSetTransformationApp {
     //filterFunction(env)
 //    mapPartitionFunction(env)
 //    firstFunction(env)
-    flatMapFunction(env)
+//    flatMapFunction(env)
+    distinctFunction(env)
+  }
+  //distinct  去重
+  def distinctFunction(env: ExecutionEnvironment):Unit = {
+    val info = ListBuffer[String]()
+    info.append("hadoop,spark")
+    info.append("hadoop,flink")
+    info.append("flink,flink")
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data = env.fromCollection(info)
+    data.flatMap(_.split(",")).distinct().print()
+
+    /** output:
+     * hadoop
+     * flink
+     * spark
+     */
   }
   //flatMap
   def flatMapFunction(env: ExecutionEnvironment):Unit = {

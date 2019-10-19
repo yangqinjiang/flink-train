@@ -22,7 +22,31 @@ public class JavaDataSetTransformationApp {
 //        filterFunction(env);
 //        mapPartitionFunction(env);
 //        firstFunction(env);
-        flatMapFunction(env);
+//        flatMapFunction(env);
+        distinctFunction(env);
+    }
+    //distinctFunction,去重
+    private static void distinctFunction(ExecutionEnvironment env) throws Exception{
+        List<String> info = new ArrayList<>();
+        info.add("hadoop,spark");
+        info.add("hadoop,flink");
+        info.add("flink,flink");
+        DataSource<String> data =  env.fromCollection(info);
+        data.flatMap(new FlatMapFunction<String, String>() {
+            @Override
+            public void flatMap(String value, Collector<String> out) throws Exception {
+                String[] tokens = value.split(",");
+                for (String token : tokens){
+                    out.collect(token);
+                }
+            }
+        }).distinct().print();
+        /** output:
+         * hadoop
+         * flink
+         * spark
+         */
+
     }
     //flatMapFunction,统计单词数量
     private static void flatMapFunction(ExecutionEnvironment env) throws Exception{
