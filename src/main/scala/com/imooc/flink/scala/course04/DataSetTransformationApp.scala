@@ -15,7 +15,173 @@ object DataSetTransformationApp {
 //    mapPartitionFunction(env)
 //    firstFunction(env)
 //    flatMapFunction(env)
-    distinctFunction(env)
+//    distinctFunction(env)
+//    joinFunction(env)
+//    leftOuterJoinFunction(env)
+//    rightOuterJoinFunction(env)
+//    fullOuterJoinFunction(env)
+    crossFunction(env)
+  }
+  //迪卡尔 积
+  def crossFunction(env: ExecutionEnvironment):Unit = {
+    val info1 = List("曼联","曼城")
+    val info2 = List(3,1,0)
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data1 = env.fromCollection(info1)
+    val data2 = env.fromCollection(info2)
+
+    data1.cross(data2).print()
+
+    /** output:
+     * (曼联,3)
+     * (曼联,1)
+     * (曼联,0)
+     * (曼城,3)
+     * (曼城,1)
+     * (曼城,0)
+     */
+  }
+
+  //fullOuterJoin 全匹配,右表 ,左表可能有null值
+  def fullOuterJoinFunction(env: ExecutionEnvironment):Unit = {
+    val info1 = ListBuffer[(Int,String)]()//编号,昵称
+    info1.append((1,"PK哥"))
+    info1.append((2,"J哥"))
+    info1.append((3,"小队长"))
+    info1.append((4,"猪头呼"))
+
+    val info2 = ListBuffer[(Int,String)]()//编号,城市
+    info2.append((1,"北京"))
+    info2.append((2,"上海"))
+    info2.append((3,"成都"))
+    info2.append((5,"杭州"))
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data1 = env.fromCollection(info1)
+    val data2 = env.fromCollection(info2)
+
+
+    data1.fullOuterJoin(data2)
+      .where(0).equalTo(0)  // 类似sql语句的 ON data1.id = data2.id
+      .apply((first,second)=>{
+        if(first == null) {
+          (second._1,"-",second._2)
+        } else if (second == null) {
+          (first._1,first._2,"-")
+        }else{
+          (first._1,first._2,second._2)
+        }
+      }).print()
+
+    /** output:
+     * (3,小队长,成都)
+     * (1,PK哥,北京)
+     * (5,-,杭州)
+     * (2,J哥,上海)
+     * (4,猪头呼,-)
+     */
+  }
+  //rightOuterJoin 右匹配,以右表为基准,左表可能有null值
+  def rightOuterJoinFunction(env: ExecutionEnvironment):Unit = {
+    val info1 = ListBuffer[(Int,String)]()//编号,昵称
+    info1.append((1,"PK哥"))
+    info1.append((2,"J哥"))
+    info1.append((3,"小队长"))
+    info1.append((4,"猪头呼"))
+
+    val info2 = ListBuffer[(Int,String)]()//编号,城市
+    info2.append((1,"北京"))
+    info2.append((2,"上海"))
+    info2.append((3,"成都"))
+    info2.append((5,"杭州"))
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data1 = env.fromCollection(info1)
+    val data2 = env.fromCollection(info2)
+
+    //rightJoin 右匹配,以右表为基准,左表可能有null值
+    data1.rightOuterJoin(data2)
+      .where(0).equalTo(0)  // 类似sql语句的 ON data1.id = data2.id
+      .apply((first,second)=>{
+        if(first != null) // first 不为null
+          (first._1,first._2,second._2) //返回tuple3
+        else
+          (second._1,"-",second._2) //返回tuple3
+      }).print()
+
+    /** output:
+     * (3,小队长,成都)
+     * (1,PK哥,北京)
+     * (5,-,杭州)
+     * (2,J哥,上海)
+     */
+  }
+  //leftOuterJoin 左匹配,以左表为基准,右表可能有null值
+  def leftOuterJoinFunction(env: ExecutionEnvironment):Unit = {
+    val info1 = ListBuffer[(Int,String)]()//编号,昵称
+    info1.append((1,"PK哥"))
+    info1.append((2,"J哥"))
+    info1.append((3,"小队长"))
+    info1.append((4,"猪头呼"))
+
+    val info2 = ListBuffer[(Int,String)]()//编号,城市
+    info2.append((1,"北京"))
+    info2.append((2,"上海"))
+    info2.append((3,"成都"))
+    info2.append((5,"杭州"))
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data1 = env.fromCollection(info1)
+    val data2 = env.fromCollection(info2)
+
+    //leftOuterJoin 左匹配,右表可能有null值
+    data1.leftOuterJoin(data2)
+      .where(0).equalTo(0)  // 类似sql语句的 ON data1.id = data2.id
+      .apply((first,second)=>{
+        if(second != null) // second 不为null
+          (first._1,first._2,second._2) //返回tuple3
+        else
+          (first._1,first._2,"-") //返回tuple3
+      }).print()
+
+    /** output:
+     * (3,小队长,成都)
+     * (1,PK哥,北京)
+     * (2,J哥,上海)
+     * (4,猪头呼,-)
+     */
+  }
+  //join 全匹配
+  def joinFunction(env: ExecutionEnvironment):Unit = {
+    val info1 = ListBuffer[(Int,String)]()//编号,昵称
+    info1.append((1,"PK哥"))
+    info1.append((2,"J哥"))
+    info1.append((3,"小队长"))
+    info1.append((4,"猪头呼"))
+
+    val info2 = ListBuffer[(Int,String)]()//编号,城市
+    info2.append((1,"北京"))
+    info2.append((2,"上海"))
+    info2.append((3,"成都"))
+    info2.append((5,"杭州"))
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val data1 = env.fromCollection(info1)
+    val data2 = env.fromCollection(info2)
+
+    // join 全匹配
+    data1.join(data2)
+      .where(0).equalTo(0)  // 类似sql语句的 ON data1.id = data2.id
+      .apply((first,second)=>{
+        (first._1,first._2,second._2) //返回tuple3
+      }).print()
+
+    /** output:
+     * (3,小队长,成都)
+     * (1,PK哥,北京)
+     * (2,J哥,上海)
+     */
   }
   //distinct  去重
   def distinctFunction(env: ExecutionEnvironment):Unit = {
