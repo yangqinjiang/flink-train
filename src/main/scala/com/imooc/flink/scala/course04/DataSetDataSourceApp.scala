@@ -2,6 +2,7 @@ package com.imooc.flink.scala.course04
 
 import com.imooc.flink.java.course04.Person
 import org.apache.flink.api.scala.ExecutionEnvironment
+import org.apache.flink.configuration.Configuration
 //隐式转换
 import org.apache.flink.api.scala._
 
@@ -15,7 +16,18 @@ object DataSetDataSourceApp {
     //fromCollection(env)
 //    readTextFile(env)
 //    readTextDir(env)
-    csvFile(env)
+//    csvFile(env)
+    readRecursiveFiles(env)
+  }
+  // 从递归文件夹的内容创建dataset之scala实现
+  def readRecursiveFiles(env: ExecutionEnvironment): Unit={
+    val filePath = "c:\\flink\\nested"
+//    env.readTextFile(filePath).print()
+//    println("~~~~~~~~~~~~~~~~~~~~")
+    //配置 递归文件夹
+    val parameters = new Configuration
+    parameters.setBoolean("recursive.file.enumeration",true)
+    env.readTextFile(filePath).withParameters(parameters).print()
   }
   //从csv文件读取数据,并打印
   def csvFile(env: ExecutionEnvironment): Unit = {

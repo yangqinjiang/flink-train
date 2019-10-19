@@ -1,9 +1,8 @@
 package com.imooc.flink.java.course04;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
 
+import org.apache.flink.configuration.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +15,17 @@ public class JavaDataSetDataSourceApp {
         //formCollection(env);
         //readTextFile(env);
         //readTextDir(env);
-        csvFile(env);
+//        csvFile(env);
+        readRecursiveFiles(env);
     }
+    // 从递归文件夹的内容创建dataset之java实现
+    private static void readRecursiveFiles(ExecutionEnvironment env) throws Exception {
+        String filePath = "c:\\flink\\nested";
+        Configuration conf  = new Configuration();
+        conf.setBoolean("recursive.file.enumeration",true);
+        env.readTextFile(filePath).withParameters(conf).print();
+    }
+
     //从csv文件读取数据,并打印
     private static void csvFile(ExecutionEnvironment env) throws Exception {
         /** 文件内容示例:
