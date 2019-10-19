@@ -2,13 +2,47 @@ package com.imooc.flink.scala.course04
 
 import org.apache.flink.api.scala.ExecutionEnvironment
 
+import scala.collection.mutable.ListBuffer
+
 object DataSetTransformationApp {
 
 
   def main(args: Array[String]): Unit = {
     val env = ExecutionEnvironment.getExecutionEnvironment
     //mapFunction(env)
-    filterFunction(env)
+    //filterFunction(env)
+    mapPartitionFunction(env)
+  }
+  //mapPartition
+  def mapPartitionFunction(env: ExecutionEnvironment):Unit = {
+    //隐式转换
+    import org.apache.flink.api.scala._
+  val students = new ListBuffer[String]
+    for(i<-1 to 100){
+      students.append("student: "+ i)
+    }
+    val data = env.fromCollection(students)
+    //使用map 操作数据库,会产生很多数据库链接,与数据源的元素对应
+    data.map(x => {
+      //每一个元素要存储到数据库,肯定需要先获取一个connection
+      val connection = DBUtils.getConection()
+      println("------map connection: "+ connection + " -------")
+      //TODO:保存到数据库,省略
+      DBUtils.returnConnection(connection)
+      x
+    }).print()
+
+    //使用mapPartition 操作数据库,数据库链接的产生
+    data.mapPartition(x => {
+      //每一个元素要存储到数据库,肯定需要先获取一个connection
+      val connection = DBUtils.getConection()
+      println("------mapPartition connection: "+ connection + " -------")
+      //TODO:保存到数据库,省略
+      DBUtils.returnConnection(connection)
+      x
+    })
+      .setParallelism(2)//控制mapPartition算子里有多少个Db connection
+      .print()
   }
   def filterFunction(env: ExecutionEnvironment): Unit = {
     //隐式转换
