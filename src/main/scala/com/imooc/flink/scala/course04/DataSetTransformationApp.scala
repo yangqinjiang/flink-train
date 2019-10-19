@@ -1,5 +1,6 @@
 package com.imooc.flink.scala.course04
 
+import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.ExecutionEnvironment
 
 import scala.collection.mutable.ListBuffer
@@ -11,7 +12,51 @@ object DataSetTransformationApp {
     val env = ExecutionEnvironment.getExecutionEnvironment
     //mapFunction(env)
     //filterFunction(env)
-    mapPartitionFunction(env)
+//    mapPartitionFunction(env)
+    firstFunction(env)
+
+  }
+  def firstFunction(env: ExecutionEnvironment):Unit = {
+    //隐式转换
+    import org.apache.flink.api.scala._
+    val info = ListBuffer[(Int,String)]()
+    info.append((1,"Hadoop"))
+    info.append((1,"Spart"))
+    info.append((1,"Flink"))
+    info.append((2,"Java"))
+    info.append((2,"String Boot"))
+    info.append((3,"Linux"))
+    info.append((4,"Vue.js"))
+
+    val data = env.fromCollection(info)
+
+    data.first(3).print()
+    /** output:
+     * (1,Hadoop)
+     * (1,Spart)
+     * (1,Flink)
+     */
+    data.groupBy(0).first(2).print()
+    /** output:
+     * (3,Linux)
+     * (1,Hadoop)
+     * (1,Spart)
+     * (2,Java)
+     * (2,String Boot)
+     * (4,Vue.js)
+     */
+    data.groupBy(0)
+      .sortGroup(1,Order.DESCENDING)//按字母降序
+      .first(2).print()
+
+    /** output:
+     * (3,Linux)
+     * (1,Spart)
+     * (1,Hadoop)
+     * (2,String Boot)
+     * (2,Java)
+     * (4,Vue.js)
+     */
   }
   //mapPartition
   def mapPartitionFunction(env: ExecutionEnvironment):Unit = {
