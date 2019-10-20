@@ -13,8 +13,25 @@ object DataStreamSourceApp {
   def main(args: Array[String]): Unit = {
       val env = StreamExecutionEnvironment.getExecutionEnvironment
 //    socketFunction(env)
-    nonParallelSourceFunction(env)
+//    nonParallelSourceFunction(env)
+//    ParallelSourceFunction(env)
+    RichParallelSourceFunction(env)
     env.execute("DataStreamSourceApp")
+  }
+  //支持并行的数据源
+  def RichParallelSourceFunction(env: StreamExecutionEnvironment) = {
+
+    val data = env.addSource(new CustomRichParallelSourceFunction())
+      .setParallelism(1) // 并行度 > 1 ,支持并行的数据源
+    data.print()
+
+  }  //支持并行的数据源
+  def ParallelSourceFunction(env: StreamExecutionEnvironment) = {
+
+    val data = env.addSource(new CustomParallelSourceFunction())
+      .setParallelism(3) // 并行度 > 1 ,支持并行的数据源
+    data.print()
+
   }
   //不能并行的数据源
   def nonParallelSourceFunction(env: StreamExecutionEnvironment) = {
