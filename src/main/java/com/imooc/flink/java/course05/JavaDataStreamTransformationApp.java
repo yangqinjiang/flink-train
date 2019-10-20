@@ -4,14 +4,23 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-
+/**
+ * 数据流与算子
+ */
 public class JavaDataStreamTransformationApp {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        filterFunction(env);
+//        filterFunction(env);
+        unionFunction(env);
         env.execute("JavaDataStreamTransformationApp");
     }
-
+    //union
+    private static void unionFunction(StreamExecutionEnvironment env) {
+        DataStreamSource<Long> data1 =  env.addSource(new CustomNonParallelSourceFunction());
+        DataStreamSource<Long> data2 =  env.addSource(new CustomNonParallelSourceFunction());
+        DataStreamSource<Long> data3 =  env.addSource(new CustomNonParallelSourceFunction());
+        data1.union(data2,data3).print().setParallelism(1);
+    }
     private static void filterFunction(StreamExecutionEnvironment env) {
         DataStreamSource<Long> data =  env.addSource(new CustomNonParallelSourceFunction());
         data.map(new MapFunction<Long, Long>() {

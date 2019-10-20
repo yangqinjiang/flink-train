@@ -11,10 +11,20 @@ object DataStreamTransformationApp {
 
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
-    filterFunction(env)
+    //filterFunction(env)
+    unionFunction(env)
     env.execute("DataStreamTransformationApp")
   }
 
+  //union
+  def unionFunction(env: StreamExecutionEnvironment) = {
+    //使用自定义的数据源,
+    val data1 = env.addSource(new CustomNonParallelSourceFunction())
+    val data2 = env.addSource(new CustomNonParallelSourceFunction())
+    val data3 = env.addSource(new CustomNonParallelSourceFunction())
+    data1.union(data2,data3).print().setParallelism(1)
+  }
+  //filter
   def filterFunction(env: StreamExecutionEnvironment) = {
     //使用自定义的数据源,
     val data = env.addSource(new CustomNonParallelSourceFunction())
