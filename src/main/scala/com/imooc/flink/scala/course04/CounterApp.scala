@@ -30,7 +30,7 @@ object CounterApp {
 
 
     //推荐:使用内置的计数器
-    val counter_exec = data.map(new RichMapFunction[String,String] {
+    val info = data.map(new RichMapFunction[String,String] {
       //1,定义计数器
       val counter = new LongCounter()
       override def open(parameters: Configuration): Unit = {
@@ -48,14 +48,14 @@ object CounterApp {
     val usePrint = true
     if (usePrint){
       //原因是print()方法自动会调用execute()方法，造成错误，所以注释掉env.execute()即可
-      counter_exec.print() //
+      info.print() //
       val jobResult = env.getLastJobExecutionResult
       //读取计数器的内容
       val count = jobResult.getAccumulatorResult[Long]("ele-counts-scala")
       println("count : "+count)
     }else{
       //直接写到文件系统,不能用print()
-      counter_exec.writeAsText("c:\\flink\\sink-scala-count",FileSystem.WriteMode.OVERWRITE)
+      info.writeAsText("c:\\flink\\sink-scala-count",FileSystem.WriteMode.OVERWRITE)
       //方式二,从env.execute得到jobResult,执行之前,不能调用print()
       val jobResult = env.execute("CounterApp")
       //读取计数器的内容
