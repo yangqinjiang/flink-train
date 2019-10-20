@@ -22,7 +22,8 @@ public class JavaDataStreamSourceApp {
         DataStreamSource<Long> data = env.addSource(new CustomRichParallelSourceFunction())
                 .setParallelism(3);// 并行度 > 1 ,支持并行的数据源
         data.print();
-    }    //支持并行的数据源
+    }
+    //支持并行的数据源
     private static void ParallelSourceFunction(StreamExecutionEnvironment env) {
         DataStreamSource<Long> data = env.addSource(new CustomParallelSourceFunction())
                 .setParallelism(3);// 并行度 > 1 ,支持并行的数据源
