@@ -81,6 +81,12 @@
             <artifactId>flink-connector-elasticsearch6_${scala.binary.version}</artifactId>
             <version>${flink.version}</version>
         </dependency>
+        <!--mysql驱动程序,-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.45</version>
+        </dependency>
         <!--加入下面两个依赖才会出现 Flink 的日志出来-->
         <dependency>
             <groupId>org.slf4j</groupId>
