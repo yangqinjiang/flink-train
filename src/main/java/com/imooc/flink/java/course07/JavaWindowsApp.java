@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
 /**
- * tumbling windows滚动窗口 的使用
+ *  windows滚动窗口 的使用
  * nc 的下载地址
  * https://eternallybored.org/misc/netcat/
  * 测试方式： nc -l -p 9999
@@ -29,7 +29,10 @@ public class JavaWindowsApp {
                     }
                 }
             }
-        }).keyBy(0).timeWindow(Time.seconds(5)).sum(1).print();
+        }).keyBy(0)
+                //.timeWindow(Time.seconds(5))//tumbling
+                .timeWindow(Time.seconds(10),Time.seconds(5))//sliding,每5s,统计前10s的数据
+                .sum(1).print().setParallelism(1);
         env.execute("JavaWindowsApp");
 
     }
