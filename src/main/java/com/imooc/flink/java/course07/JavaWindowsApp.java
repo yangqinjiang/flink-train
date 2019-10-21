@@ -8,7 +8,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 
 /**
- * time windows 的使用
+ * tumbling windows滚动窗口 的使用
  * nc 的下载地址
  * https://eternallybored.org/misc/netcat/
  * 测试方式： nc -l -p 9999

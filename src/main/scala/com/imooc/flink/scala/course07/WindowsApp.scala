@@ -4,7 +4,7 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.time.Time
 
 /**
- * time windows 的使用
+ * tumbling windows滚动窗口 的使用
  * nc 的下载地址
  * https://eternallybored.org/misc/netcat/
  * 测试方式： nc -L -p 9999
