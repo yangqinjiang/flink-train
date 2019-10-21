@@ -2,20 +2,23 @@ package com.imooc.flink.java.course07;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
 /**
- *  Windows ReduceFunction 的使用
+ *  processFunction 的使用
  * nc 的下载地址
  * https://eternallybored.org/misc/netcat/
  * 测试方式： nc -l -p 9999
  */
 
-public class JavaWindowsReduceApp {
+public class JavaWindowsProcessApp {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         DataStreamSource<String> text = env.socketTextStream("localhost",9999);
@@ -32,16 +35,19 @@ public class JavaWindowsReduceApp {
             }
         }).keyBy(0)
                 .timeWindow(Time.seconds(5))//tumbling
-                //.timeWindow(Time.seconds(10),Time.seconds(5))//sliding,每5s,统计前10s的数据
-                .reduce(new ReduceFunction<Tuple2<Integer, Integer>>() {
+                .process(new ProcessWindowFunction<Tuple2<Integer, Integer>, Object, Tuple, TimeWindow>() {
                     @Override
-                    public Tuple2<Integer, Integer> reduce(Tuple2<Integer, Integer> value1, Tuple2<Integer, Integer> value2) throws Exception {
-                        System.out.println("value1 = ["+value1 + " ], value2 = [ " + value2 + " ]");
-                        return new Tuple2<>(value1.f0,value1.f1 + value2.f1);//
+                    public void process(Tuple tuple, Context context, Iterable<Tuple2<Integer, Integer>> elements, Collector<Object> out) throws Exception {
+                        System.out.println("~~~~~~~~~~~~~~~~~~~");
+                        long count = 0;
+                        for (Tuple2<Integer,Integer> in : elements){
+                            count ++;
+                        }
+                        out.collect("Window: " + context.window() + " count: " + count);
                     }
                 })
                 .print().setParallelism(1);
-        env.execute("JavaWindowsReduceApp");
+        env.execute("JavaWindowsProcessApp");
 
     }
 }
