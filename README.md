@@ -23,4 +23,4 @@ mvn archetype:generate \
 
 
 #Watermark的说明
-`http://blog.csdn.net/Imalds/article/details/52704170`
+`https://blog.csdn.net/lmalds/article/details/52704170`
