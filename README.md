@@ -20,3 +20,7 @@ mvn archetype:generate \
   -DarchetypeVersion=1.7.2 \
   -DarchetypeCatalog=local
 ```
+
+
+#Watermark的说明
+`http://blog.csdn.net/Imalds/article/details/52704170`
