@@ -46,3 +46,9 @@ mvn archetype:generate \
 - 查看所有的topic:  bin/kafka-topics.sh --list --zookeeper hadoop000:2181
 - 启动生产者: bin/kafka-console-producer.sh --broker-list hadoop000:9092 --topic pktest
 - 启动消费者: bin/kafka-console-consumer.sh --bootstrap-server hadoop000:9092 --topic pktest --from-beginning
+
+
+#flink的编译,安装,前置条件,JDK8,MVN3.3.9
+- 下载地址: https://codeload.github.com/apache/flink/tar.gz/release-1.7.0
+- 解压: tar -zxvf flink-release-1.7.0.tar.gz -C ~/app
+- mvn clean install -DskipTests -Pvendor-repos -Dfast -DHadoop.version=2.6.0-cdh5.15.1
