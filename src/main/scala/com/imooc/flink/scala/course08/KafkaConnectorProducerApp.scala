@@ -26,6 +26,9 @@ object KafkaConnectorProducerApp {
     val sink = new FlinkKafkaProducer[String](topic,
       new KeyedSerializationSchemaWrapper[String](new SimpleStringSchema()),
       prop)
+//    val sink = new FlinkKafkaProducer[String](topic,
+//      new KeyedSerializationSchemaWrapper[String](new SimpleStringSchema()),
+//      prop,FlinkKafkaProducer.Semantic.EXACTLY_ONCE) //
     data.addSink(sink)
 
     env.execute("KafkaConnectorProducerApp")
