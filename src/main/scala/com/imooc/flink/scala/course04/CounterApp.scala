@@ -55,7 +55,7 @@ object CounterApp {
       println("count : "+count)
     }else{
       //直接写到文件系统,不能用print()
-      info.writeAsText("c:\\flink\\sink-scala-count",FileSystem.WriteMode.OVERWRITE)
+      info.writeAsText("c:\\flink\\output\\sink-scala-count",FileSystem.WriteMode.OVERWRITE)
       //方式二,从env.execute得到jobResult,执行之前,不能调用print()
       val jobResult = env.execute("CounterApp")
       //读取计数器的内容

@@ -15,7 +15,7 @@ public class JavaDataSetSinkApp {
             info.add(i);
         }
         DataSource<Integer> data = env.fromCollection(info);//数据源
-        String filePath = "c:\\flink\\sink-out-java";
+        String filePath = "c:\\flink\\output\\sink-out-java";
         //设置参数, FileSystem.WriteMode.OVERWRITE ,已存在filePath,则覆盖
         //如果 setParallelism 设置并行度 > 1,则slin-out是文件夹,里面包括与并行度数量相同的文件
         // , setParallelism(1)则输出是单个文件

@@ -13,7 +13,7 @@ object SinkApp {
     import org.apache.flink.api.scala._
     val data = 1.to(10)
     val text = env.fromCollection(data) //数据源
-    val filePath = "c:\\flink\\slink-out-scala\\"
+    val filePath = "c:\\flink\\output\\slink-out-scala\\"
     //设置参数, FileSystem.WriteMode.OVERWRITE ,已存在filePath,则覆盖
     //如果 setParallelism 设置并行度 > 1,则slin-out是文件夹,里面包括与并行度数量相同的文件
     // , setParallelism(1)则输出是单个文件
