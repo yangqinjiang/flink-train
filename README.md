@@ -51,4 +51,6 @@ mvn archetype:generate \
 #flink的编译,安装,前置条件,JDK8,MVN3.3.9
 - 下载地址: https://codeload.github.com/apache/flink/tar.gz/release-1.7.0
 - 解压: tar -zxvf flink-release-1.7.0.tar.gz -C ~/app
-- mvn clean install -DskipTests -Pvendor-repos -Dfast -DHadoop.version=2.6.0-cdh5.15.1
+- mvn clean install -DskipTests -Pvendor-repos -Dfast -DHadoop.version=2.6.0-cdh5.7.0
+- 将花很长时间来编译,包括下载jar包
+- 编译好的结果在 flink-dist
