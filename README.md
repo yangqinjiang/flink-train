@@ -54,3 +54,25 @@ mvn archetype:generate \
 - mvn clean install -DskipTests -Pvendor-repos -Dfast -DHadoop.version=2.6.0-cdh5.7.0
 - 将花很长时间来编译,包括下载jar包
 - 编译好的结果在 flink-dist
+
+#基于Flink的互联网直播平台日志分析项目实战
+```
+日志格式:
+    aliyun
+    CN
+    E
+    [17/Jul/2018:17:07:50 +0800]
+    223.104.18.110
+    v2.go2yd.com
+    17168
+```
+接入的数据类型就是日志
+- 离线: Flume ==> HDFS
+- 实时: Kafka ==> 流处理引擎 ==> ES ==> Kibana
+
+项目功能
+- 1,统计一分钟内每个域名访问产生的流量
+    `Flink接收Kafka的进行处理`
+- 2, 统计一分钟内每个用户产生的流量
+    `域名和用户是有对应关系的`
+    `Flink接收Kafka的进行 + Flink读取域名和用户的配置数据  进行处理`
