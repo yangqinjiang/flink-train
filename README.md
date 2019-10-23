@@ -76,3 +76,18 @@ mvn archetype:generate \
 - 2, 统计一分钟内每个用户产生的流量
     `域名和用户是有对应关系的`
     `Flink接收Kafka的进行 + Flink读取域名和用户的配置数据  进行处理`
+    
+    
+# ElasticSearch 的使用
+curl -XPUT 'http://hadoop000:9200/cdn'
+
+curl -H "Content-Type: application/json" -XPOST 'http://hadoop000:9200/cdn/traffic/_mapping'
+{
+"traffic":{
+    "properties":{
+        "domain":{"type":"text"},
+        "traffics":{"type":"long"},
+        "time":{"type":"date","format":"yyyy-MM-dd HH:mm"},
+    }
+}
+}

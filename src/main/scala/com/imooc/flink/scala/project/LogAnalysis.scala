@@ -1,21 +1,28 @@
 package com.imooc.flink.scala.project
 
 import java.text.SimpleDateFormat
+import java.util
 import java.util.Properties
 
-import com.imooc.flink.java.project.{LogSourceFunction}
+import com.imooc.flink.java.project.LogSourceFunction
+import org.apache.flink.api.common.functions.RuntimeContext
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.java.tuple.Tuple
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
-import org.apache.flink.streaming.api.{TimeCharacteristic}
+import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala.function.WindowFunction
 import org.apache.flink.streaming.api.watermark.Watermark
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
+import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSinkFunction, RequestIndexer}
+import org.apache.flink.streaming.connectors.elasticsearch6.ElasticsearchSink
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer
 import org.apache.flink.util.Collector
+import org.apache.http.HttpHost
+import org.elasticsearch.action.index.IndexRequest
+import org.elasticsearch.client.Requests
 //隐式转换
 import org.apache.flink.api.scala._
 
@@ -88,7 +95,7 @@ object LogAnalysis {
     //logObject.print().setParallelism(1)
 
     //使用水印, 处理数据无序的问题
-    logObject.assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[(Long,String,Long)] {
+    val resultData = logObject.assignTimestampsAndWatermarks(new AssignerWithPeriodicWatermarks[(Long,String,Long)] {
       val maxOutOfOrderness = 10000L
       var currentMaxTimestamp :Long = _
       override def getCurrentWatermark: Watermark = {
@@ -122,7 +129,31 @@ object LogAnalysis {
             val currentMins = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(mins)
             out.collect((currentMins.toString,domain,sum))
           }
-        }).print().setParallelism(1)
+        })
+
+//    resultData.print().setParallelism(1)
+    //保存到ES
+    val httpHosts = new util.ArrayList[HttpHost]()
+    httpHosts.add(new HttpHost("localhost",9300,"http"))
+
+    val esSinkBuilder = new ElasticsearchSink.Builder[(String,String,Long)](
+      httpHosts,new ElasticsearchSinkFunction[(String, String, Long)] {
+        def createIndexRequest(t: (String, String, Long)):IndexRequest = {
+          val json = new java.util.HashMap[String,Any]()
+          json.put("time",t._1)
+          json.put("domain",t._2)
+          json.put("traffic",t._3)
+          val id = t._1 +"-"+t._2  //key
+          Requests.indexRequest().index("cdn").`type`("traffic").id(id).source(json)
+        }
+        override def process(t: (String, String, Long), runtimeContext: RuntimeContext, requestIndexer: RequestIndexer): Unit = {
+          requestIndexer.add(createIndexRequest(t))
+        }
+      }
+    )
+    esSinkBuilder.setBulkFlushMaxActions(1)
+
+    resultData.addSink(esSinkBuilder.build())
 
     env.execute("project - LogAnalysis")
 
