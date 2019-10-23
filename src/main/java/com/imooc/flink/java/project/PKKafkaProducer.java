@@ -2,7 +2,6 @@ package com.imooc.flink.java.project;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.text.SimpleDateFormat;
@@ -40,6 +39,7 @@ public class PKKafkaProducer {
         }
     }
 
+    //流量
     public static int getTraffic(){
         return new Random().nextInt(10000);
     }
