@@ -78,7 +78,7 @@ mvn archetype:generate \
     `Flink接收Kafka的进行 + Flink读取域名和用户的配置数据  进行处理`
     
     
-# ElasticSearch 的使用
+# (需求一)ElasticSearch 的使用
 curl -XPUT 'http://hadoop000:9200/cdn'
 
 curl -H "Content-Type: application/json" -XPOST 'http://hadoop000:9200/cdn/traffic/_mapping'
@@ -125,3 +125,33 @@ INSERT INTO user_domain_config (user_id,domain) values ('8000000','vmi.go2yd.com
 ```  
 在做实时数据清洗的时候, 不仅需要处理原始日志,还需要关联MySQL表里的数据
 自定义一个Flink去读取MySQL数据的数据源,然后把两个Stream关联起来
+
+# (需求二)ElasticSearch 的使用
+curl -XPUT 'http://hadoop000:9200/cdn2'
+
+curl -H "Content-Type: application/json" -XPOST 'http://hadoop000:9200/cdn2/traffic/_mapping'
+{
+"traffic":{
+    "properties":{
+        "domain":{"type":"keyword"},
+        "traffics":{"type":"long"},
+        "time":{"type":"date","format":"yyyy-MM-dd HH:mm"},
+        "userid":{"type":"keyword"}
+    }
+}
+}
+
+
+#Flink进行数据的清洗
+- 读取kafka的数据
+- 读取MySQL的数据
+- connect
+  业务逻辑的处理分析, 水印 windowFunction
+   ==> ES 注意数据类型  <== kibana 图形化的统计结果展示
+   
+- kibana :各个环节的监控,监控图形化,
+1 30
+2 40
+3 300
+4 35 
+数据的波动,便于观察
