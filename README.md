@@ -155,3 +155,4 @@ curl -H "Content-Type: application/json" -XPOST 'http://hadoop000:9200/cdn2/traf
 3 300
 4 35 
 数据的波动,便于观察
+我们已经实现的 + CDN业务文档的描述  => 扩展
