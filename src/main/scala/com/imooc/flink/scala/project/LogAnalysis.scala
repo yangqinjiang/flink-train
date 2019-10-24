@@ -134,7 +134,7 @@ object LogAnalysis {
 //    resultData.print().setParallelism(1)
     //保存到ES
     val httpHosts = new util.ArrayList[HttpHost]()
-    httpHosts.add(new HttpHost("localhost",9300,"http"))
+    httpHosts.add(new HttpHost("localhost",9200,"http"))
 
     val esSinkBuilder = new ElasticsearchSink.Builder[(String,String,Long)](
       httpHosts,new ElasticsearchSinkFunction[(String, String, Long)] {
@@ -142,9 +142,9 @@ object LogAnalysis {
           val json = new java.util.HashMap[String,Any]()
           json.put("time",t._1)
           json.put("domain",t._2)
-          json.put("traffic",t._3)
+          json.put("traffics",t._3)
           val id = t._1 +"-"+t._2  //key
-          Requests.indexRequest().index("cdn").`type`("traffic").id(id).source(json)
+          Requests.indexRequest().index("cdn2").`type`("traffic").id(id).source(json)
         }
         override def process(t: (String, String, Long), runtimeContext: RuntimeContext, requestIndexer: RequestIndexer): Unit = {
           requestIndexer.add(createIndexRequest(t))

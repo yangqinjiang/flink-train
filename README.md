@@ -85,9 +85,43 @@ curl -H "Content-Type: application/json" -XPOST 'http://hadoop000:9200/cdn/traff
 {
 "traffic":{
     "properties":{
-        "domain":{"type":"text"},
+        "domain":{"type":"keyword"},
         "traffics":{"type":"long"},
-        "time":{"type":"date","format":"yyyy-MM-dd HH:mm"},
+        "time":{"type":"date","format":"yyyy-MM-dd HH:mm"}
     }
 }
 }
+
+#安装kibana
+- 设置浏览器的时区: management -> Kibana:Advanced Settings -> Timezone for date formatting : Etc/GMT
+
+
+#
+```  
+domains:
+    v1.go2yd.com
+    v2.go2yd.com
+    v3.go2yd.com
+    v4.go2yd.com
+    vmi.go2yd.com
+userid: 8000001
+    v1.go2yd.com
+```  
+用户id和域名的映射关系
+    从日志里能拿到domain,还得从另外一个表(MySQL)里面去获取userid和domain的映射关系
+```  
+CREATE TABLE user_domain_config(
+id int unsigned auto_increment,
+user_id varchar(40) not null,
+domain varchar(40) not null,
+primary key (id)
+)
+
+INSERT INTO user_domain_config (user_id,domain) values ('8000000','v1.go2yd.com');
+INSERT INTO user_domain_config (user_id,domain) values ('8000001','v2.go2yd.com');
+INSERT INTO user_domain_config (user_id,domain) values ('8000000','v3.go2yd.com');
+INSERT INTO user_domain_config (user_id,domain) values ('8000002','v4.go2yd.com');
+INSERT INTO user_domain_config (user_id,domain) values ('8000000','vmi.go2yd.com');
+```  
+在做实时数据清洗的时候, 不仅需要处理原始日志,还需要关联MySQL表里的数据
+自定义一个Flink去读取MySQL数据的数据源,然后把两个Stream关联起来
