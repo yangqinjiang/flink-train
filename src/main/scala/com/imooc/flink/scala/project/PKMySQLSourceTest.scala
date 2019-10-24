@@ -7,7 +7,10 @@ object PKMySQLSourceTest {
 
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
-    val data = env.addSource(new PKMySQLSource).setParallelism(1)
+    //从MySQL读取数据
+    //val data = env.addSource(new PKMySQLSource).setParallelism(1)
+    //模拟数据
+    val data = env.addSource(new PKUserIdDomainSource).setParallelism(1)
     data.print()
     env.execute("PKMySQLSourceTest")
   }
