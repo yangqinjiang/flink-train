@@ -156,3 +156,57 @@ curl -H "Content-Type: application/json" -XPOST 'http://hadoop000:9200/cdn2/traf
 4 35 
 数据的波动,便于观察
 我们已经实现的 + CDN业务文档的描述  => 扩展
+---
+# 单机模式部署及代码提交测试
+`./bin/start-cluster.sh  # Start Flink`
+
+`jps 查看输出,应该有这两个进程: StandaloneSessionClusterEntrypoint,TaskManagerRunner`
+## 查看运行日志
+`cd log/ ,有相关的日志  `
+## 运行示例程序
+```
+1,先启动nc
+nc -L -p 9000
+2,提交flink示例程序
+# 流处理
+./bin/flink run examples/streaming/SocketWindowWordCount.jar --port 9000
+# 批处理
+ .\bin\flink run .\examples\batch\WordCount.jar -input /path/to/input.txt -output /path/to/output.txt
+```
+# 关闭单机模式的部署
+`./bin/stop-cluster.sh # stop Flink`
+
+# Flink部署及作业提交
+`https://ci.apache.org/projects/flink/flink-docs-release-1.9/ops/deployment/yarn_setup.html`
+ON YARN是企业级用的最多的方式(推荐)
+
+# FLINK ON YARN 第一种模式实践
+## Start a long-running Flink cluster on YARN (作为长时间运行的job,运行在YARN上)
+./bin/yarn-session.sh -n 1 -jm 1024m -tm 1024m
+### 参数说明 ,可参考 yarn-session.sh --help
+- -n taskmanager的数量
+- -jm jobmanager的内存
+- -tm taskmanager的内存
+
+### 提交作业
+```
+#下载等待统计的文本
+wget -O LICENSE-2.0.txt http://www.apache.org/licenses/LICENSE-2.0.txt
+#提交 示例
+./bin/flink run ./examples/batch/WordCount.jar \
+-input hdfs://hadoop000:8020/LICENSE-2.0.txt \
+-output hdfs://hadoop000:8020/wordcount-result.txt \
+#查看结果
+hdfs fs -text /wordcount-result.txt
+```
+### 杀死 flink job ON YARN
+`yarn application -kill application_xxxxxxxxx`
+`jps , 杀死 FlinkYarnSessionCli 进程`
+---
+# FLINK ON YARN 第二种模式实践
+## Run a single Flink job on YARN
+`参考文档:https://ci.apache.org/projects/flink/flink-docs-release-1.9/ops/deployment/yarn_setup.html#run-a-single-flink-job-on-yarn`
+#### 示例
+`./bin/flink run -m yarn-cluster ./examples/batch/WordCount.jar`
+### 查看flink job 运行日志
+`yarn logs -applicationId <application ID>`
