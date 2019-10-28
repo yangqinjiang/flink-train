@@ -10,6 +10,7 @@ import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.java.tuple.Tuple
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
 import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.scala.function.WindowFunction
 import org.apache.flink.streaming.api.watermark.Watermark
@@ -34,23 +35,13 @@ object LogAnalysis {
 
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
-
     //
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-      //kafka
-      val topic = "pktest"
-
-      val prop = new Properties();
-      //如果使用hadoop000 ,必须配置host文件
-      prop.setProperty("bootstrap.servers","hadoop000:9092")
-      prop.setProperty("group.id","test")
-      //开发阶段,不从kafka读取数据
-     // val consumer = new FlinkKafkaConsumer[String](topic,new SimpleStringSchema(),prop);
-
-    val consumer = new LogSourceFunction();// 在进程内产生日志,而不是用kafka
+    //原始数据来源
+    val consumer = new SourceFunctionFactory().create(false)
     val data = env.addSource(consumer).setParallelism(2)//source的并行度
-
+    //原始数据的输出
     data.print().setParallelism(1)
 
 
@@ -132,6 +123,8 @@ object LogAnalysis {
         })
 
 //    resultData.print().setParallelism(1)
+//    env.execute("project - LogAnalysis")
+//    return
     //保存到ES
     val httpHosts = new util.ArrayList[HttpHost]()
     httpHosts.add(new HttpHost("localhost",9200,"http"))

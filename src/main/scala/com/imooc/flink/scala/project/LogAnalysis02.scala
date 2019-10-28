@@ -39,17 +39,8 @@ object LogAnalysis02 {
     //
     env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
 
-      //kafka
-      val topic = "pktest"
-
-      val prop = new Properties();
-      //如果使用hadoop000 ,必须配置host文件
-      prop.setProperty("bootstrap.servers","hadoop000:9092")
-      prop.setProperty("group.id","test")
-      //开发阶段,不从kafka读取数据
-     // val consumer = new FlinkKafkaConsumer[String](topic,new SimpleStringSchema(),prop);
-
-    val consumer = new LogSourceFunction();// 在进程内产生日志,而不是用kafka
+    //数据来源
+    val consumer = new SourceFunctionFactory().create(false)
     val data = env.addSource(consumer).setParallelism(2)//source的并行度
 
     //data.print().setParallelism(1)
