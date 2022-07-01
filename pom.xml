@@ -21,7 +21,7 @@
         <flink.version>1.7.0</flink.version>
         <scala.version>2.11.12</scala.version>
         <scala.binary.version>2.11</scala.binary.version>
-        <hadoop.version>2.2.0</hadoop.version>
+        <hadoop.version>2.7.0</hadoop.version>
         <!--在Maven里指定编译版本-->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
